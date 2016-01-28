@@ -1,6 +1,7 @@
 package com.mikroe.hexiwear_android;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.yodiwo.androidnode.NodeService;
+import com.yodiwo.androidnode.ThingManager;
 
 import java.util.ArrayList;
 
@@ -41,8 +45,11 @@ public class GyroscopeActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        hexiwearService = new HexiwearService(uuidArray);
-        hexiwearService.readCharStart(50);
+        BluetoothManager btm = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        if( btm.getAdapter().isEnabled()) {
+            hexiwearService = new HexiwearService(uuidArray);
+            hexiwearService.readCharStart(10);
+        }
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
 
@@ -53,7 +60,9 @@ public class GyroscopeActivity extends Activity {
 
     protected void onPause() {
         super.onPause();
-        hexiwearService.readCharStop();
+        if (hexiwearService != null) {
+            hexiwearService.readCharStop();
+        }
         unregisterReceiver(mGattUpdateReceiver);
     }
 
@@ -84,10 +93,12 @@ public class GyroscopeActivity extends Activity {
     private void displayCharData(String uuid, byte[] data) {
         String tmpString;
         int tmpLong;
+        String[] portStates = new String[3];
 
         if (uuid.equals(HexiwearService.UUID_CHAR_GYRO)) {
             tmpLong = (((int)data[1]) << 8) | (data[0] & 0xff);
-            progressBarX.setProgressTitle(String.valueOf(tmpLong));
+            portStates[0] = String.valueOf(tmpLong);
+            progressBarX.setProgressTitle(portStates[0]);
             if(tmpLong < 0) {
                 progressBarX.setProgressRotation((tmpLong / ((float) progressBarX.getProgressMax()) * 360f));
                 tmpLong = -tmpLong;
@@ -98,7 +109,8 @@ public class GyroscopeActivity extends Activity {
             progressBarX.setProgressValue(tmpLong);
 
             tmpLong = (((int)data[3]) << 8) | (data[2] & 0xff);
-            progressBarY.setProgressTitle(String.valueOf(tmpLong));
+            portStates[1] = String.valueOf(tmpLong);
+            progressBarY.setProgressTitle(portStates[1]);
             if(tmpLong < 0) {
                 progressBarY.setProgressRotation((tmpLong / ((float) progressBarY.getProgressMax()) * 360f));
                 tmpLong = -tmpLong;
@@ -109,7 +121,55 @@ public class GyroscopeActivity extends Activity {
             progressBarY.setProgressValue(tmpLong);
 
             tmpLong = (((int)data[5]) << 8) | (data[4] & 0xff);
-            progressBarZ.setProgressTitle(String.valueOf(tmpLong));
+            portStates[2] = String.valueOf(tmpLong);
+            progressBarZ.setProgressTitle(portStates[2]);
+            if(tmpLong < 0) {
+                progressBarZ.setProgressRotation((tmpLong / ((float) progressBarZ.getProgressMax()) * 360f));
+                tmpLong = -tmpLong;
+            }
+            else {
+                progressBarZ.setProgressRotation(0);
+            }
+            progressBarZ.setProgressValue(tmpLong);
+
+            // Send batch port event to Yodiwo Cloud
+            NodeService.SendPortMsg(this, ThingManager.HexiwearGyro, portStates, 0);
+        }
+
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private void displayCharDataFromCloud(int portID, String state) {
+        if (portID == ThingManager.HexiwearGyroPortX) {
+            int tmpLong = Integer.valueOf(state);
+            progressBarX.setProgressTitle(state);
+            if(tmpLong < 0) {
+                progressBarX.setProgressRotation((tmpLong / ((float) progressBarX.getProgressMax()) * 360f));
+                tmpLong = -tmpLong;
+            }
+            else {
+                progressBarX.setProgressRotation(0);
+            }
+            progressBarX.setProgressValue(tmpLong);
+        }
+        else if (portID == ThingManager.HexiwearGyroPortY) {
+            int tmpLong = Integer.valueOf(state);
+            progressBarY.setProgressTitle(state);
+            if(tmpLong < 0) {
+                progressBarY.setProgressRotation((tmpLong / ((float) progressBarY.getProgressMax()) * 360f));
+                tmpLong = -tmpLong;
+            }
+            else {
+                progressBarY.setProgressRotation(0);
+            }
+            progressBarY.setProgressValue(tmpLong);
+        }
+        else if (portID == ThingManager.HexiwearGyroPortZ) {
+            int tmpLong = Integer.valueOf(state);
+            progressBarZ.setProgressTitle(state);
             if(tmpLong < 0) {
                 progressBarZ.setProgressRotation((tmpLong / ((float) progressBarZ.getProgressMax()) * 360f));
                 tmpLong = -tmpLong;
@@ -119,7 +179,6 @@ public class GyroscopeActivity extends Activity {
             }
             progressBarZ.setProgressValue(tmpLong);
         }
-
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +189,7 @@ public class GyroscopeActivity extends Activity {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(NodeService.BROADCAST_THING_UPDATE);
         return intentFilter;
     }
 
@@ -155,6 +215,19 @@ public class GyroscopeActivity extends Activity {
                 String uuid = intent.getStringExtra(BluetoothLeService.EXTRA_CHAR);
 
                 displayCharData(uuid, data);
+            } else if (NodeService.BROADCAST_THING_UPDATE.equals(action)) {
+                Bundle b = intent.getExtras();
+                int portID = b.getInt(NodeService.EXTRA_UPDATED_PORT_ID, -1);
+                String thingKey = b.getString(NodeService.EXTRA_UPDATED_THING_KEY);
+                String thingName = b.getString(NodeService.EXTRA_UPDATED_THING_NAME);
+                String portState = b.getString(NodeService.EXTRA_UPDATED_STATE);
+                Boolean isEvent = b.getBoolean(NodeService.EXTRA_UPDATED_IS_EVENT);
+                Boolean isInternalEvent = b.getBoolean(NodeService.EXTRA_IS_INTERNAL_EVENT, false);
+                int revNum = b.getInt(NodeService.EXTRA_UPDATED_REVNUM, -1);
+
+                if (thingKey.equals(ThingManager.getInstance(context).GetThingKey(ThingManager.HexiwearGyro))) {
+                    displayCharDataFromCloud(portID, portState);
+                }
             }
         }
     };
