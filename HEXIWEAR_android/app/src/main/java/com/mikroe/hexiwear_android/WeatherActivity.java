@@ -8,6 +8,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.yodiwo.androidnode.NodeService;
+import com.yodiwo.androidnode.ThingManager;
+
 import java.util.ArrayList;
 
 public class WeatherActivity extends Activity {
@@ -40,7 +43,6 @@ public class WeatherActivity extends Activity {
 
     protected void onResume() {
         super.onResume();
-
         hexiwearService = new HexiwearService(uuidArray);
         hexiwearService.readCharStart(10);
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
@@ -63,7 +65,6 @@ public class WeatherActivity extends Activity {
     @Override
 
     protected void onDestroy() {
-
         super.onDestroy();
     }
 
@@ -85,26 +86,37 @@ public class WeatherActivity extends Activity {
         String tmpString;
         int tmpLong;
         float tmpFloat;
+        String portState;
 
         if (uuid.equals(HexiwearService.UUID_CHAR_TEMPERATURE)) {
             tmpLong = (((int)data[1]) << 8) | (data[0] & 0xff);
             tmpFloat = (float)tmpLong / 100;
             tmpString = tmpFloat + (" \u2103");
+            portState = String.valueOf(tmpFloat);
             displayData(txtView_temperature, tmpString);
-        }
 
+            // Send port event to Yodiwo Cloud
+            NodeService.SendPortMsg(this, ThingManager.HexiwearWeather, ThingManager.HexiwearWeatherPortTemperature, portState, 0);
+        }
         else if (uuid.equals(HexiwearService.UUID_CHAR_HUMIDITY)) {
             tmpLong = (data[1] << 8) & 0xff00 | (data[0] & 0xff);
             tmpFloat = (float)tmpLong / 100;
             tmpString = tmpFloat + (" %");
+            portState = String.valueOf(tmpFloat);
             displayData(txtView_humidity, tmpString);
-        }
 
+            // Send port event to Yodiwo Cloud
+            NodeService.SendPortMsg(this, ThingManager.HexiwearWeather, ThingManager.HexiwearWeatherPortHumidity, portState, 0);
+        }
         else if (uuid.equals(HexiwearService.UUID_CHAR_PRESSURE)) {
             tmpLong = (data[1] << 8) & 0xff00 | (data[0] & 0xff);
             tmpFloat = (float)tmpLong / 100;
             tmpString = tmpFloat + (" kPa");
+            portState = String.valueOf(tmpFloat);
             displayData(txtView_pressure, tmpString);
+
+            // Send port event to Yodiwo Cloud
+            NodeService.SendPortMsg(this, ThingManager.HexiwearWeather, ThingManager.HexiwearWeatherPortPressure, portState, 0);
         }
     }
 

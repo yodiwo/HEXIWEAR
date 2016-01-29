@@ -8,6 +8,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.yodiwo.androidnode.NodeService;
+import com.yodiwo.androidnode.ThingManager;
+
 import java.util.ArrayList;
 
 public class AccelActivity extends Activity {
@@ -39,7 +42,6 @@ public class AccelActivity extends Activity {
 
     protected void onResume() {
         super.onResume();
-
         hexiwearService = new HexiwearService(uuidArray);
         hexiwearService.readCharStart(10);
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
@@ -73,11 +75,13 @@ public class AccelActivity extends Activity {
     private void displayCharData(String uuid, byte[] data) {
         int tmpLong;
         float tmpFloat;
+        String[] portStates = new String[3];
 
         if (uuid.equals(HexiwearService.UUID_CHAR_ACCEL)) {
             tmpLong = (((int)data[1]) << 8) | (data[0] & 0xff);
             tmpFloat = (float)tmpLong / 100;
-            progressBarX.setProgressTitle(String.valueOf(tmpFloat)+"g");
+            portStates[0] = String.valueOf(tmpFloat);
+            progressBarX.setProgressTitle(portStates[0] + "g");
             tmpLong += (progressBarX.getProgressMax() >> 1);
             if(tmpLong > progressBarX.getProgressMax()) {
                 tmpLong = progressBarX.getProgressMax();
@@ -86,7 +90,8 @@ public class AccelActivity extends Activity {
 
             tmpLong = (((int)data[3]) << 8) | (data[2] & 0xff);
             tmpFloat = (float)tmpLong / 100;
-            progressBarY.setProgressTitle(String.valueOf(tmpFloat)+"g");
+            portStates[1] = String.valueOf(tmpFloat);
+            progressBarY.setProgressTitle(portStates[1] + "g");
 
             tmpLong += (progressBarY.getProgressMax() >> 1);
             if(tmpLong > progressBarY.getProgressMax()) {
@@ -96,12 +101,16 @@ public class AccelActivity extends Activity {
 
             tmpLong = (((int)data[5]) << 8) | (data[4] & 0xff);
             tmpFloat = (float)tmpLong / 100;
-            progressBarZ.setProgressTitle(String.valueOf(tmpFloat)+"g");
+            portStates[2] = String.valueOf(tmpFloat);
+            progressBarZ.setProgressTitle(portStates[2] + "g");
             tmpLong += (progressBarZ.getProgressMax() >> 1);
             if(tmpLong > progressBarZ.getProgressMax()) {
                 tmpLong = progressBarZ.getProgressMax();
             }
             progressBarZ.setProgressValue(tmpLong);
+
+            // Send batch port event to Yodiwo Cloud
+            NodeService.SendPortMsg(this, ThingManager.HexiwearAccel, portStates, 0);
         }
 
     }

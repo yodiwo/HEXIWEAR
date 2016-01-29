@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.yodiwo.androidnode.NodeService;
+import com.yodiwo.androidnode.ThingManager;
+
 import java.util.ArrayList;
 
 public class GyroscopeActivity extends Activity {
@@ -40,9 +43,8 @@ public class GyroscopeActivity extends Activity {
 
     protected void onResume() {
         super.onResume();
-
         hexiwearService = new HexiwearService(uuidArray);
-        hexiwearService.readCharStart(50);
+        hexiwearService.readCharStart(10);
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
 
@@ -63,7 +65,6 @@ public class GyroscopeActivity extends Activity {
     @Override
 
     protected void onDestroy() {
-
         super.onDestroy();
     }
 
@@ -84,10 +85,12 @@ public class GyroscopeActivity extends Activity {
     private void displayCharData(String uuid, byte[] data) {
         String tmpString;
         int tmpLong;
+        String[] portStates = new String[3];
 
         if (uuid.equals(HexiwearService.UUID_CHAR_GYRO)) {
             tmpLong = (((int)data[1]) << 8) | (data[0] & 0xff);
-            progressBarX.setProgressTitle(String.valueOf(tmpLong));
+            portStates[0] = String.valueOf(tmpLong);
+            progressBarX.setProgressTitle(portStates[0]);
             if(tmpLong < 0) {
                 progressBarX.setProgressRotation((tmpLong / ((float) progressBarX.getProgressMax()) * 360f));
                 tmpLong = -tmpLong;
@@ -98,7 +101,8 @@ public class GyroscopeActivity extends Activity {
             progressBarX.setProgressValue(tmpLong);
 
             tmpLong = (((int)data[3]) << 8) | (data[2] & 0xff);
-            progressBarY.setProgressTitle(String.valueOf(tmpLong));
+            portStates[1] = String.valueOf(tmpLong);
+            progressBarY.setProgressTitle(portStates[1]);
             if(tmpLong < 0) {
                 progressBarY.setProgressRotation((tmpLong / ((float) progressBarY.getProgressMax()) * 360f));
                 tmpLong = -tmpLong;
@@ -109,7 +113,8 @@ public class GyroscopeActivity extends Activity {
             progressBarY.setProgressValue(tmpLong);
 
             tmpLong = (((int)data[5]) << 8) | (data[4] & 0xff);
-            progressBarZ.setProgressTitle(String.valueOf(tmpLong));
+            portStates[2] = String.valueOf(tmpLong);
+            progressBarZ.setProgressTitle(portStates[2]);
             if(tmpLong < 0) {
                 progressBarZ.setProgressRotation((tmpLong / ((float) progressBarZ.getProgressMax()) * 360f));
                 tmpLong = -tmpLong;
@@ -118,6 +123,9 @@ public class GyroscopeActivity extends Activity {
                 progressBarZ.setProgressRotation(0);
             }
             progressBarZ.setProgressValue(tmpLong);
+
+            // Send batch port event to Yodiwo Cloud
+            NodeService.SendPortMsg(this, ThingManager.HexiwearGyro, portStates, 0);
         }
 
     }
