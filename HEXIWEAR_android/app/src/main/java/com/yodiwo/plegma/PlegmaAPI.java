@@ -22,8 +22,8 @@ public class PlegmaAPI {
     public static final String s_NodeUnpairedReq;
     public static final String s_NodeUnpairedRsp;
 
-    public static final String s_ThingsReq;
-    public static final String s_ThingsRsp;
+    public static final String s_ThingsGet;
+    public static final String s_ThingsSet;
 
     public static final String s_PortEventMsg;
     public static final String s_PortStateReq;
@@ -32,6 +32,8 @@ public class PlegmaAPI {
 
     public static final String s_PingReq;
     public static final String s_PingRsp;
+
+    public static final String s_GenericRsp;
 
     public static final String s_UnknownRsp;
 
@@ -43,21 +45,22 @@ public class PlegmaAPI {
     static {
         APIVersion = 1;
         KeySeparator = '-';
-        ApiMessages = new Class<?>[]{LoginReq.class, LoginRsp.class, NodeInfoReq.class, NodeInfoRsp.class, ThingsReq.class, ThingsRsp.class, PortEventMsg.class, PortStateReq.class, PortStateRsp.class, ActivePortKeysMsg.class,};
+        ApiMessages = new Class<?>[]{LoginReq.class, LoginRsp.class, NodeInfoReq.class, NodeInfoRsp.class, ThingsGet.class, ThingsSet.class, PortEventMsg.class, PortStateReq.class, PortStateRsp.class, ActivePortKeysMsg.class,};
         s_LoginReq = "loginreq";
         s_LoginRsp = "loginrsp";
         s_NodeInfoReq = "nodeinforeq";
         s_NodeInfoRsp = "nodeinforsp";
         s_NodeUnpairedReq = "nodeunpairedreq";
         s_NodeUnpairedRsp = "nodeunpairedrsp";
-        s_ThingsReq = "thingsreq";
-        s_ThingsRsp = "thingsrsp";
+        s_ThingsGet = "thingsget";
+        s_ThingsSet = "thingsset";
         s_PortEventMsg = "porteventmsg";
         s_PortStateReq = "portstatereq";
         s_PortStateRsp = "portstatersp";
         s_ActivePortKeysMsg = "activeportkeysmsg";
         s_PingReq = "pingreq";
         s_PingRsp = "pingrsp";
+        s_GenericRsp = "genericrsp";
         ApiMsgNames = new HashMap<Class<?>, String>();
         ApiMsgNames.put(LoginReq.class, s_LoginReq);
         ApiMsgNames.put(LoginRsp.class, s_LoginRsp);
@@ -65,8 +68,8 @@ public class PlegmaAPI {
         ApiMsgNames.put(NodeInfoRsp.class, s_NodeInfoRsp);
         ApiMsgNames.put(NodeUnpairedReq.class, s_NodeUnpairedReq);
         ApiMsgNames.put(NodeUnpairedRsp.class, s_NodeUnpairedRsp);
-        ApiMsgNames.put(ThingsReq.class, s_ThingsReq);
-        ApiMsgNames.put(ThingsRsp.class, s_ThingsRsp);
+        ApiMsgNames.put(ThingsGet.class, s_ThingsGet);
+        ApiMsgNames.put(ThingsSet.class, s_ThingsSet);
         ApiMsgNames.put(PortEventMsg.class, s_PortEventMsg);
         ApiMsgNames.put(PortStateReq.class, s_PortStateReq);
         ApiMsgNames.put(PortStateRsp.class, s_PortStateRsp);
@@ -80,14 +83,15 @@ public class PlegmaAPI {
         ApiMsgNamesToTypes.put(s_NodeInfoRsp, NodeInfoRsp.class);
         ApiMsgNamesToTypes.put(s_NodeUnpairedReq, NodeUnpairedReq.class);
         ApiMsgNamesToTypes.put(s_NodeUnpairedRsp, NodeUnpairedRsp.class);
-        ApiMsgNamesToTypes.put(s_ThingsReq, ThingsReq.class);
-        ApiMsgNamesToTypes.put(s_ThingsRsp, ThingsRsp.class);
+        ApiMsgNamesToTypes.put(s_ThingsGet, ThingsGet.class);
+        ApiMsgNamesToTypes.put(s_ThingsSet, ThingsSet.class);
         ApiMsgNamesToTypes.put(s_PortEventMsg, PortEventMsg.class);
         ApiMsgNamesToTypes.put(s_PortStateReq, PortStateReq.class);
         ApiMsgNamesToTypes.put(s_PortStateRsp, PortStateRsp.class);
         ApiMsgNamesToTypes.put(s_ActivePortKeysMsg, ActivePortKeysMsg.class);
         ApiMsgNamesToTypes.put(s_PingReq, PingReq.class);
         ApiMsgNamesToTypes.put(s_PingRsp, PingRsp.class);
+        ApiMsgNamesToTypes.put(s_GenericRsp, GenericRsp.class);
 
         s_UnknownRsp = "unknownrsp";
     }

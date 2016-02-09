@@ -131,6 +131,19 @@ public class SettingsProvider {
 
     // ---------------------------------------------------------------------------------------------
 
+    public String getNodeThingsRevNum() {
+        return prefs.getString(context.getString(R.string.pref_node_things_revnum), "1");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    public void setNodeThingsRevNum(String revnum) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(context.getString(R.string.pref_node_things_revnum), revnum);
+        editor.commit();
+    }
+
+    // ---------------------------------------------------------------------------------------------
     public void setNodeKeys(String nodeKey, String secretKey) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(context.getString(R.string.pref_pairing_nodekey_key), nodeKey);

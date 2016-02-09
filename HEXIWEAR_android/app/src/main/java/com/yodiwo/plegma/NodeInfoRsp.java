@@ -5,7 +5,7 @@ package com.yodiwo.plegma;
  */
 
 /**
- * Node Info Response Message that contains general information about a node including supported Node Types and Capabilities
+ * Node Info Response Message that contains gneral information about a node including supported Node Types and Capabilities
  * Direction: bidirectional (Node->Cloud and Cloud->Node)
  * In response to a Yodiwo.API.Plegma.NodeInfoReq
  */
@@ -27,16 +27,20 @@ public class NodeInfoRsp extends ApiMsg {
      */
     public NodeThingType[] ThingTypes;
 
+    public int ThingsRevNum;
+
+    public String[] BlockLibraries;
+
     public NodeInfoRsp() {
     }
 
-    public NodeInfoRsp(int SeqNo, String Name, int Type, int Capabilities, NodeThingType[] ThingTypes) {
+    public NodeInfoRsp(int SeqNo, String Name, int Type, int Capabilities, NodeThingType[] ThingTypes, int ThingsRevNum) {
         this.SeqNo = SeqNo;
         this.Name = Name;
         this.Type = Type;
         this.Capabilities = Capabilities;
         this.ThingTypes = ThingTypes;
-
+        this.ThingsRevNum = ThingsRevNum;
     }
 
 }

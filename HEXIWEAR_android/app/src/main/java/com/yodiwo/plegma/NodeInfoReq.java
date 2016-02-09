@@ -12,18 +12,17 @@ package com.yodiwo.plegma;
  * Receiving end must reply with a Yodiwo.API.Plegma.NodeInfoRsp
  */
 public class NodeInfoReq extends ApiMsg {
-    /**
-     * Reserved for future use; ignore
-     */
-    public NodeThingType RequestedThingType;
 
-    public NodeInfoReq() {
-    }
+    public int LatestApiRev;
 
-    public NodeInfoReq(int SeqNo, NodeThingType RequestedThingType) {
+    public String AssignedEndpoint;
+
+    public int ThingsRevNum;
+
+    public NodeInfoReq() {}
+
+    public NodeInfoReq(int SeqNo) {
         this.SeqNo = SeqNo;
-        this.RequestedThingType = RequestedThingType;
-
     }
 
 }

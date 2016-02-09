@@ -34,14 +34,14 @@ public class ApiRestAccess {
         ArrayList<String>
         ListApiCalls();
 
-        @POST("/api/1/thingsrsp")
-        String SendNodeThings(@Body ThingsRsp things);
+        @POST("/api/1/thingsset")
+        String SendNodeThings(@Body ThingsSet things);
 
         @POST("/api/1/porteventmsg")
         String SendPortEvent(@Body PortEventMsg portEventMsg);
 
-        @POST("/api/1/thingsreq")
-        ThingsRsp SendThingsReq(@Body ThingsReq thingsReq);
+        @POST("/api/1/thingsget")
+        ThingsSet SendThingsGet(@Body ThingsGet thingsGet);
 
         // Pairing API
         @POST("/pairing/1/gettokensreq")

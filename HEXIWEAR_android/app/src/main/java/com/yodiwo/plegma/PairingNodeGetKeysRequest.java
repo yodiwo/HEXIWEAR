@@ -10,12 +10,15 @@ public class PairingNodeGetKeysRequest {
 
     public String token1;
 
+    public String token2;
+
     public PairingNodeGetKeysRequest() {
     }
 
     public PairingNodeGetKeysRequest(String uuid, String token1) {
         this.uuid = uuid;
         this.token1 = token1;
+        this.token2 = token2;
 
     }
 

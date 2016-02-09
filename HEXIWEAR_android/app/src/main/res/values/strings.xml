@@ -65,6 +65,9 @@
     <string name="pref_pairing_token1_key">pairing_token1_key</string>
     <string name="pref_pairing_token2_key">pairing_token2_key</string>
 
+    <!-- Node Settings -->
+    <string name="pref_node_things_revnum">node_things_revnum</string>
+
     <string name="pref_service_yodiup_address_key">service_yodiup_address_key</string>
     <string name="pref_service_yodiup_address_title">YodiUp Address</string>
     <string name="pref_service_yodiup_address_default">https://up.yodiwo.com</string>

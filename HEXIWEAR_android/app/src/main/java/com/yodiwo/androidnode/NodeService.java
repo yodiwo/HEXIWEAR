@@ -40,8 +40,8 @@ import com.yodiwo.plegma.PortStateReq;
 import com.yodiwo.plegma.PortStateRsp;
 import com.yodiwo.plegma.Thing;
 import com.yodiwo.plegma.ThingKey;
-import com.yodiwo.plegma.ThingsReq;
-import com.yodiwo.plegma.ThingsRsp;
+import com.yodiwo.plegma.ThingsGet;
+import com.yodiwo.plegma.ThingsSet;
 import com.yodiwo.plegma.eBinaryResourceContentType;
 import com.yodiwo.plegma.eBinaryResourceLocationType;
 import com.yodiwo.plegma.eNodeCapa;
@@ -590,10 +590,11 @@ public class NodeService extends IntentService {
 
     private void SendThings() {
         try {
-            ThingsReq msg = new ThingsReq(GetSendSeqNum(),
-                    ThingsReq.Overwrite,
-                    "",
-                    thingHashMap.values().toArray(new Thing[0]));
+            ThingsSet msg = new ThingsSet(GetSendSeqNum(),
+                    ThingsSet.Overwrite,
+                    true,
+                    thingHashMap.values().toArray(new Thing[0]),
+                    0);
             serverAPI.SendReq(msg);
         } catch (Exception e) {
             Helpers.logException(TAG, e);
@@ -781,15 +782,26 @@ public class NodeService extends IntentService {
                         public void Handle(Object msg, int syncId, int flags) {
                             NodeInfoReq req = (NodeInfoReq) msg;
 
+                            int localThingsRevNum = Integer.valueOf(SettingsProvider.getInstance(getApplicationContext()).getNodeThingsRevNum());
+
                             NodeInfoRsp rsp = new NodeInfoRsp(GetSendSeqNum(),
                                     settingsProvider.getDeviceName(),
                                     eNodeType.EndpointSingle,
                                     eNodeCapa.None,
-                                    null);
-                            if (serverAPI != null)
+                                    null,
+                                    localThingsRevNum);
+
+                            if (serverAPI != null) {
                                 serverAPI.SendRsp(rsp, syncId);
+
+                                if(req.ThingsRevNum > localThingsRevNum) {
+                                    ThingsGet thingsget = new ThingsGet(GetSendSeqNum(), ThingsGet.Get, null, localThingsRevNum);
+                                    serverAPI.SendReq(thingsget);
+                                }
+                            }
                         }
                     });
+
 
             // ---------------------> PortEventMsg
             rxHandlersClass.put(PlegmaAPI.ApiMsgNames.get(PortEventMsg.class), PortEventMsg.class);
@@ -868,43 +880,65 @@ public class NodeService extends IntentService {
                         }
                     });
 
-            // ---------------------> ThingsReq
-            rxHandlersClass.put(PlegmaAPI.ApiMsgNames.get(ThingsReq.class), ThingsReq.class);
-            rxHandlers.put(PlegmaAPI.ApiMsgNames.get(ThingsReq.class),
+            // ---------------------> ThingsGet
+            rxHandlersClass.put(PlegmaAPI.ApiMsgNames.get(ThingsGet.class), ThingsGet.class);
+            rxHandlers.put(PlegmaAPI.ApiMsgNames.get(ThingsGet.class),
                     new RxHandler() {
                         @Override
                         public void Handle(Object msg, int syncId, int flags) {
-                            ThingsReq req = (ThingsReq) msg;
-                            ThingsRsp rsp = null;
+                            ThingsGet req = (ThingsGet) msg;
+                            ThingsSet rsp = null;
 
                             // Send the internal things of the node.
-                            if (req.Operation == ThingsReq.Get) {
+                            if (req.Operation == ThingsGet.Get) {
 
-                                rsp = new ThingsRsp(GetSendSeqNum(),
-                                        req.Operation,
+                                rsp = new ThingsSet(GetSendSeqNum(),
+                                        ThingsSet.Update,
                                         true,
-                                        thingHashMap.values().toArray(new Thing[0])
+                                        thingHashMap.values().toArray(new Thing[0]),
+                                        Integer.valueOf(SettingsProvider.getInstance(getApplicationContext()).getNodeThingsRevNum())
                                 );
                             }
                             // TODO: Implement based on upcoming API additions for Thing delete/disable
-                            else if (req.Operation == ThingsReq.Delete) {
+                            else if (req.Operation == ThingsGet.Delete) {
 
-                                rsp = new ThingsRsp(GetSendSeqNum(),
+                                rsp = new ThingsSet(GetSendSeqNum(),
                                         req.Operation,
                                         false,
-                                        null);
+                                        null,
+                                        0);
                             }
                             // TODO: Implement all other operations
                             else {
 
-                                rsp = new ThingsRsp(GetSendSeqNum(),
+                                rsp = new ThingsSet(GetSendSeqNum(),
                                         req.Operation,
                                         false,
-                                        null);
+                                        null,
+                                        0);
                             }
 
                             if (serverAPI != null)
                                 serverAPI.SendRsp(rsp, syncId);
+                        }
+                    });
+
+            // ---------------------> ThingsSet
+            rxHandlersClass.put(PlegmaAPI.ApiMsgNames.get(ThingsSet.class), ThingsSet.class);
+            rxHandlers.put(PlegmaAPI.ApiMsgNames.get(ThingsSet.class),
+                    new RxHandler() {
+                        @Override
+                        public void Handle(Object msg, int syncId, int flags) {
+                            ThingsSet thingsset = (ThingsSet) msg;
+
+                            // Update local ThingRevNum
+                            SettingsProvider.getInstance(getApplicationContext()).setNodeThingsRevNum(String.valueOf(thingsset.RevNum));
+                            if (thingsset.Operation == ThingsSet.Update) {
+                                //TODO:: Update Hashmaps
+                            }
+                            else if (thingsset.Operation == ThingsSet.Overwrite) {
+                                //TODO: Update Hashmaps
+                            }
                         }
                     });
 

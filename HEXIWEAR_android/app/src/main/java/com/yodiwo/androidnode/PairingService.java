@@ -23,7 +23,7 @@ public class PairingService extends IntentService {
     public static final String EXTRA_STATUS = "EXTRA_STATUS";
 
     public static final String BROADCAST_PHASE1_FINISHED = "PairingService.BROADCAST_PHASE1_FINISHED";
-    public static final String BROADCAST_PAIRING_FINISHED = "PairingService.BROADCAST_PAIRINGH_FINISHED";
+    public static final String BROADCAST_PAIRING_FINISHED = "PairingService.BROADCAST_PAIRING_FINISHED";
 
     public static final int REQUEST_START_PAIRING = 0;
     public static final int REQUEST_FINISH_PAIRING = 1;
@@ -82,6 +82,7 @@ public class PairingService extends IntentService {
             PairingNodeGetTokensRequest req = new PairingNodeGetTokensRequest();
             req.uuid = settingsProvider.getNodeUUID();
             req.name = settingsProvider.getDeviceName();
+            req.redirectUrl = PairingService.getPairingWebUrl(SettingsProvider.getInstance(this)) + "/pairing/1/success";
 
             PairingServerTokensResponse resp = apiRestAccess.service.SendPairingGetTokens(req);
             Log.d(TAG, "Tokens: " + resp.token1 + ", " + resp.token2);
@@ -114,6 +115,7 @@ public class PairingService extends IntentService {
             PairingNodeGetKeysRequest req = new PairingNodeGetKeysRequest();
             req.uuid = settingsProvider.getNodeUUID();
             req.token1 = settingsProvider.getNodeToken1();
+            req.token2 = settingsProvider.getNodeToken2();
 
             PairingServerKeysResponse resp = apiRestAccess.service.SendPairingGetKeys(req);
             //Log.d(TAG, "Keys: " + resp.nodeKey + ", " + resp.secretKey);
