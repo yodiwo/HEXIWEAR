@@ -75,7 +75,7 @@ public class DeviceScanActivity extends Activity {
 
     private static final int REQUEST_ENABLE_BT = 1;
 
-    public static final String KWARP_ADDRESS = "00:04:9F:00:00:01";
+    public static final String KWARP_NAME = "HEXIWEAR";
 
     private TextView mScanTitle;
 
@@ -115,7 +115,6 @@ public class DeviceScanActivity extends Activity {
 
         mHandler = new Handler();
         mScanTitle = (TextView) findViewById(R.id.scanTitle);
-        mDeviceAddress = KWARP_ADDRESS;
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -367,7 +366,8 @@ public class DeviceScanActivity extends Activity {
             @Override
             public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
 
-                if(device.getAddress().equals(KWARP_ADDRESS)) {
+                if(device.getName().equals(KWARP_NAME)) {
+                    mDeviceAddress = device.getAddress();
                     mBluetoothLeService.connect(mDeviceAddress);
                     scanLeDevice(false);
                 }
