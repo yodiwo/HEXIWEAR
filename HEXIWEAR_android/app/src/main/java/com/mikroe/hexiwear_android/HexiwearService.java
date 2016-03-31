@@ -46,6 +46,8 @@ public class HexiwearService {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public HexiwearService(ArrayList<String> uuidArray) {
+        Log.d(TAG, "HexiwearService started with uuid" + uuidArray.toString());
+
         String uuidGat = null;
         mGattCharacteristics = DeviceScanActivity.getGattCharacteristics();
         mBluetoothLeService  = DeviceScanActivity.getBluetoothLeService();
@@ -57,6 +59,7 @@ public class HexiwearService {
 
                 for (String uuid : uuidArray) {
                     if(uuid.equals(uuidGat)) {
+                        Log.d(TAG, "Characteristic added");
                         charas.add(characteristic);
                         break;
                     }
@@ -84,6 +87,7 @@ public class HexiwearService {
 
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (characteristic != null) {
+            Log.d(TAG, "Read BLE characteristic: " + characteristic.getUuid());
             final int charaProp = characteristic.getProperties();
 
             if ((charaProp & BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
@@ -104,6 +108,7 @@ public class HexiwearService {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void readCharStart(long interval) {
+        Log.d(TAG, "Start reading BLE characteristic using timerTask");
         myTimer = new Timer();
         ReadCharTask readCharTask = new ReadCharTask();
         myTimer.schedule(readCharTask, 200, interval);
@@ -114,6 +119,7 @@ public class HexiwearService {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void readCharStop() {
+        Log.d(TAG, "Stop reading BLE characteristic using timerTask");
         myTimer.cancel();
     }
 

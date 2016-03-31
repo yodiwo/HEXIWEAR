@@ -107,6 +107,7 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d(TAG, "Successfully reading of BLE characteristic: status = " + status);
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             }
         }
@@ -114,9 +115,11 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicWrite (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                Log.d(TAG, "Successfully writing of BLE characteristic: status = " + status);
                 broadcastUpdate(ACTION_WRITE_RESPONSE_OK, characteristic);
             }
             else {
+                Log.e(TAG, "Erorr writing BLE characteristic: status = " + status);
                 broadcastUpdate(ACTION_WRITE_RESPONSE_ERROR, characteristic);
             }
         }
@@ -124,6 +127,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
+            Log.d(TAG, "BLE characteristic changed");
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
     };
@@ -233,7 +237,7 @@ public class BluetoothLeService extends Service {
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
-        Log.d(TAG, "Trying to create a new connection.");
+        Log.d(TAG, "Trying to create a new connection: address = " + address);
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
         return true;
