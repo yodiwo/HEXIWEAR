@@ -158,8 +158,12 @@ public class DeviceScanActivity extends Activity {
 
         scanLeDevice(true);
 
-        Intent gattServiceIntent = new Intent(DeviceScanActivity.this, BluetoothLeService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+        try {
+            Intent gattServiceIntent = new Intent(DeviceScanActivity.this, BluetoothLeService.class);
+            bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+        }catch(Exception ex){
+            Log.e(TAG, ex.getMessage());
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -366,7 +370,8 @@ public class DeviceScanActivity extends Activity {
 
                         if (device.getName().equals(KWARP_NAME)) {
                             mDeviceAddress = device.getAddress();
-                            mBluetoothLeService.connect(mDeviceAddress);
+                            if (mBluetoothLeService != null)
+                                mBluetoothLeService.connect(mDeviceAddress);
                             scanLeDevice(false);
                         }
                     }
@@ -395,7 +400,8 @@ public class DeviceScanActivity extends Activity {
                         Log.d(TAG, "Successful discovery: deviceUuid = " + device + ", deviceName = " + device.getName());
                         if (device.getName().equals(KWARP_NAME)) {
                             mDeviceAddress = device.getAddress();
-                            mBluetoothLeService.connect(mDeviceAddress);
+                            if (mBluetoothLeService != null)
+                                mBluetoothLeService.connect(mDeviceAddress);
                             scanLeDevice(false);
                         }
                     }
