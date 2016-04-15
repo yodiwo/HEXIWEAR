@@ -77,38 +77,67 @@
         </activity>
 
         <activity
-            android:name="com.yodiwo.androidnode.SettingsActivity"
+            android:name="com.yodiwo.androidagent.core.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName="com.mikroe.hexiwear_android.MainScreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.yodiwo.androidnode.PairingActivity"
+            android:name="com.yodiwo.androidagent.core.PairingActivity"
             android:label="@string/title_activity_pairing"
-            android:parentActivityName="com.mikroe.hexiwear_android.MainScreenActivity"
+            android:parentActivityName=".MainScreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainScreenActivity" />
         </activity>
         <activity
-            android:name="com.yodiwo.androidnode.PairingWebActivity"
+            android:name="com.yodiwo.androidagent.core.PairingWebActivity"
             android:label="@string/title_activity_pairing_web"
-            android:parentActivityName="com.mikroe.hexiwear_android.MainScreenActivity" >
+            android:parentActivityName="com.yodiwo.androidagent.core.PairingActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.yodiwo.androidagent.core.PairingActivity" />
         </activity>
-
         <service
-            android:name="com.yodiwo.androidnode.PairingService"
+            android:name="com.yodiwo.androidagent.core.PairingService"
             android:enabled="true"
             android:exported="false" >
         </service>
         <service
-            android:name="com.yodiwo.androidnode.NodeService"
+            android:name="com.yodiwo.androidagent.core.NodeService"
             android:enabled="true"
             android:exported="false" >
         </service>
         <service
             android:name="org.eclipse.paho.android.service.MqttService" >
         </service>
+
+        <!-- ΓΨΜ ρελατεδ -->
+        <service
+            android:name="com.yodiwo.androidagent.gcm.GcmRxService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name="com.yodiwo.androidagent.gcm.GcmListener"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+        <receiver
+            android:name = "com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+                <category android:name="com.yodiwo.androidagent.gcm" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

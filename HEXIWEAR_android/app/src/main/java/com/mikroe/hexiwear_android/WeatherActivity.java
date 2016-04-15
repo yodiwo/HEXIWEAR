@@ -8,8 +8,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.yodiwo.androidnode.NodeService;
-import com.yodiwo.androidnode.ThingManager;
+
+import com.yodiwo.androidagent.core.NodeService;
 
 import java.util.ArrayList;
 
@@ -96,7 +96,7 @@ public class WeatherActivity extends Activity {
             displayData(txtView_temperature, tmpString);
 
             // Send port event to Yodiwo Cloud
-            NodeService.SendPortMsg(this, ThingManager.HexiwearWeather, ThingManager.HexiwearWeatherPortTemperature, portState, 0);
+            NodeService.SendPortMsg(this, MainScreenActivity.HexiwearWeather, MainScreenActivity.HexiwearWeatherPortTemperature, portState, 0);
         }
         else if (uuid.equals(HexiwearService.UUID_CHAR_HUMIDITY)) {
             tmpLong = (data[1] << 8) & 0xff00 | (data[0] & 0xff);
@@ -106,7 +106,7 @@ public class WeatherActivity extends Activity {
             displayData(txtView_humidity, tmpString);
 
             // Send port event to Yodiwo Cloud
-            NodeService.SendPortMsg(this, ThingManager.HexiwearWeather, ThingManager.HexiwearWeatherPortHumidity, portState, 0);
+            NodeService.SendPortMsg(this, MainScreenActivity.HexiwearWeather, MainScreenActivity.HexiwearWeatherPortHumidity, portState, 0);
         }
         else if (uuid.equals(HexiwearService.UUID_CHAR_PRESSURE)) {
             tmpLong = (data[1] << 8) & 0xff00 | (data[0] & 0xff);
@@ -116,7 +116,7 @@ public class WeatherActivity extends Activity {
             displayData(txtView_pressure, tmpString);
 
             // Send port event to Yodiwo Cloud
-            NodeService.SendPortMsg(this, ThingManager.HexiwearWeather, ThingManager.HexiwearWeatherPortPressure, portState, 0);
+            NodeService.SendPortMsg(this, MainScreenActivity.HexiwearWeather, MainScreenActivity.HexiwearWeatherPortPressure, portState, 0);
         }
     }
 

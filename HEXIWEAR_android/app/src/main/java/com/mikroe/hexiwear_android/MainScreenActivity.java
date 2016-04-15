@@ -1,6 +1,5 @@
 package com.mikroe.hexiwear_android;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,17 +11,45 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import com.yodiwo.androidagent.core.NodeService;
+import com.yodiwo.androidagent.core.PairingActivity;
+import com.yodiwo.androidagent.core.SettingsActivity;
+import com.yodiwo.androidagent.core.SettingsProvider;
+import com.yodiwo.androidagent.plegma.ConfigParameter;
+import com.yodiwo.androidagent.plegma.Port;
+import com.yodiwo.androidagent.plegma.PortKey;
+import com.yodiwo.androidagent.plegma.Thing;
+import com.yodiwo.androidagent.plegma.ThingKey;
+import com.yodiwo.androidagent.plegma.ThingUIHints;
+import com.yodiwo.androidagent.plegma.ePortConf;
+import com.yodiwo.androidagent.plegma.ePortType;
+import com.yodiwo.androidagent.plegma.ioPortDirection;
 
-import com.yodiwo.androidnode.NodeService;
-import com.yodiwo.androidnode.PairingActivity;
-import com.yodiwo.androidnode.SettingsActivity;
-import com.yodiwo.androidnode.SettingsProvider;
+import java.util.ArrayList;
 
 public class MainScreenActivity extends ActionBarActivity {
 
     public static boolean isUnpairedByUser;
     private static boolean ActivityInitialized;
     private SettingsProvider settingsProvider = null;
+
+// =============================================================================================
+    // Things names
+
+    public static final String HexiwearGyro = "HexiwearGyro";
+    public static final int HexiwearGyroPortX = 0;
+    public static final int HexiwearGyroPortY = 1;
+    public static final int HexiwearGyroPortZ = 2;
+
+    public static final String HexiwearAccel = "HexiwearAccel";
+    public static final int HexiwearAccelPortX = 0;
+    public static final int HexiwearAccelPortY = 1;
+    public static final int HexiwearAccelPortZ = 2;
+
+    public static final String HexiwearWeather = "HexiwearWeather";
+    public static final int HexiwearWeatherPortTemperature = 0;
+    public static final int HexiwearWeatherPortHumidity = 1;
+    public static final int HexiwearWeatherPortPressure = 2;
 
 
     @Override
@@ -38,6 +65,8 @@ public class MainScreenActivity extends ActionBarActivity {
         if (settingsProvider.getNodeKey() != null && settingsProvider.getNodeSecretKey() != null) {
             ActivityInitialized = true;
             isUnpairedByUser = false;
+
+            NodeService.ImportThings(setThings(this));
             NodeService.Startup(this);
         }
 
@@ -188,5 +217,81 @@ public class MainScreenActivity extends ActionBarActivity {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         return intentFilter;
+    }
+
+    // =============================================================================================
+    // Create Things
+    // =============================================================================================
+
+    private ArrayList<Thing> setThings(Context context) {
+        ArrayList<Thing> preDefinedThings = new ArrayList<>();
+        ArrayList<ConfigParameter> Config;
+        ConfigParameter conf;
+
+        if (settingsProvider == null)
+            settingsProvider = SettingsProvider.getInstance(context);
+
+        String nodeKey = settingsProvider.getNodeKey();
+        String thingKey = "";
+        Thing thing = null;
+
+        // ----------------------------------------------
+        // Gyro
+
+        thingKey = ThingKey.CreateKey(nodeKey, HexiwearGyro);
+        thing = new Thing(thingKey, HexiwearGyro, new ArrayList<ConfigParameter>(), new ArrayList<Port>(), "", "",
+                new ThingUIHints("/Content/VirtualGateway/img/icon-gyroscope.png", ""));
+
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearGyroPortX)),
+                "X-axis (deg/s)", "",
+                ioPortDirection.Output, ePortType.Integer, "0", 0, ePortConf.None));
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearGyroPortY)),
+                "Y-axis (deg/s)", "",
+                ioPortDirection.Output, ePortType.Integer, "0", 0, ePortConf.None));
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearGyroPortZ)),
+                "Z-axis (deg/s)", "",
+                ioPortDirection.Output, ePortType.Integer, "0", 0, ePortConf.None));
+
+        preDefinedThings.add(thing);
+
+        // ----------------------------------------------
+        // Accel
+
+        thingKey = ThingKey.CreateKey(nodeKey, HexiwearAccel);
+        thing = new Thing(thingKey, HexiwearAccel, new ArrayList<ConfigParameter>(), new ArrayList<Port>(), "", "",
+                new ThingUIHints("/Content/VirtualGateway/img/accelerometer.jpg", ""));
+
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearAccelPortX)),
+                "X-axis (g)", "",
+                ioPortDirection.Output, ePortType.Decimal, "0", 0, ePortConf.None));
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearAccelPortY)),
+                "Y-axis (g)", "",
+                ioPortDirection.Output, ePortType.Decimal, "0", 0, ePortConf.None));
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearAccelPortZ)),
+                "Z-axis (g)", "",
+                ioPortDirection.Output, ePortType.Decimal, "0", 0, ePortConf.None));
+
+        preDefinedThings.add(thing);
+
+        // ----------------------------------------------
+        // Weather
+
+        thingKey = ThingKey.CreateKey(nodeKey, HexiwearWeather);
+        thing = new Thing(thingKey, HexiwearWeather, new ArrayList<ConfigParameter>(), new ArrayList<Port>(), "", "",
+                new ThingUIHints("/Content/Designer/img/BlockImages/icon-openweathermap.png", ""));
+
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearWeatherPortTemperature)),
+                "Temperature (Celsius)", "",
+                ioPortDirection.Output, ePortType.Decimal, "0", 0, ePortConf.None));
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearWeatherPortHumidity)),
+                "Humidity (%)", "",
+                ioPortDirection.Output, ePortType.Decimal, "0", 0, ePortConf.None));
+        thing.Ports.add(new Port(PortKey.CreateKey(thingKey, Integer.toString(HexiwearWeatherPortPressure)),
+                "Pressure (kPa)", "",
+                ioPortDirection.Output, ePortType.Decimal, "0", 0, ePortConf.None));
+
+        preDefinedThings.add(thing);
+
+        return preDefinedThings;
     }
 }

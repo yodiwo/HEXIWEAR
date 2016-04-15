@@ -20,7 +20,8 @@
      <item android:id="@+id/action_settings" android:title="@string/action_settings"
          android:orderInCategory="100" app:showAsAction="never" />
 
-     <item android:id="@+id/action_repairing" android:title="@string/action_repairing"
+     <item android:id="@+id/action_repairing"
+           android:title="@string/action_repairing"
          android:orderInCategory="100" app:showAsAction="never" />
 
 </menu>

@@ -8,8 +8,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.yodiwo.androidnode.NodeService;
-import com.yodiwo.androidnode.ThingManager;
+
+import com.yodiwo.androidagent.core.NodeService;
+import com.yodiwo.androidagent.core.ThingManager;
 
 import java.util.ArrayList;
 
@@ -110,7 +111,7 @@ public class AccelActivity extends Activity {
             progressBarZ.setProgressValue(tmpLong);
 
             // Send batch port event to Yodiwo Cloud
-            NodeService.SendPortMsg(this, ThingManager.HexiwearAccel, portStates, 0);
+            NodeService.SendPortMsg(this, MainScreenActivity.HexiwearAccel, portStates, 0);
         }
 
     }
